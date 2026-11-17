@@ -1,0 +1,25 @@
+# Free, keyless browser deployment of the user's fork of God's Eye View.
+# The upstream project is local-first and uses a Vite server for its API proxies.
+# No paid keys or credentials are included here.
+services:
+  - type: web
+    name: groundworx-gods-eye-view
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /
+    autoDeployTrigger: commit
+    envVars:
+      - key: PORT
+        value: "4173"
+      # Disable Docker gateway trust when serving a public website:
+      - key: GEV_KEY_SETUP_TRUSTED_PEERS
+        value: none
+      # The upstream server explicitly allows only named hosts.
+      # Render supplies its real hostname even if it adjusts the service name.
+      - key: GEV_ALLOWED_HOSTS
+        fromService:
+          type: web
+          name: groundworx-gods-eye-view
+          envVarKey: RENDER_EXTERNAL_HOSTNAME
